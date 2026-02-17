@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoRent | Sasha Kalko Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2d6a4f',
+                        secondary: '#40916c',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #2d6a4f;
+            --primary-soft: #d8f3dc;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #1b4332;
+            --text-muted: #52796f;
+            --input-bg: #ffffff;
+            --input-border: #dae2dc;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --header-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #74c69d;
+            --primary-soft: #1b4332;
+            --background: #0d1b1e;
+            --card-bg: #162b2e;
+            --text-main: #f0fff4;
+            --text-muted: #95d5b2;
+            --input-bg: #ffffff;
+            --input-border: #2d6a4f;
+            --nav-bg: rgba(22, 43, 46, 0.9);
+            --header-text: #f0fff4;
+        }
+
+        body {
+            background-color: var(--background);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .text-main { color: var(--text-main); }
+        .text-muted { color: var(--text-muted); }
+        .bg-card { background-color: var(--card-bg); }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: transform 0.2s ease, background-color 0.4s ease;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem 1.1rem;
+            background-color: #ffffff !important;
+            border: 2px solid var(--input-border);
+            color: #1b4332 !important;
+            border-radius: 1rem;
+            margin-top: 0.35rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .input-field::placeholder { color: #95a5a6; }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-soft);
+            transform: translateY(-1px);
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 700;
+            flex: 1;
+            transition: all 0.3s;
+            border-radius: 1rem;
+        }
+
+        .nav-tab i { width: 1.4rem; height: 1.4rem; margin-bottom: 4px; opacity: 0.7; }
+        .nav-tab.active { color: var(--primary); background: var(--primary-soft); }
+        .nav-tab.active i { opacity: 1; transform: scale(1.1); }
+
+        .status-led {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .sticky-nav {
+            background-color: var(--nav-bg);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .btn-icon {
+            background: rgba(255,255,255,0.15);
+            padding: 0.6rem;
+            border-radius: 0.8rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--header-text);
+        }
+
+        .btn-icon:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+        .btn-icon:active { transform: scale(0.95); }
+
+        @media (max-width: 640px) {
+            .nav-tab span { display: none; }
+            .nav-tab i { width: 1.6rem; height: 1.6rem; margin-bottom: 0; }
+        }
+
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+  }
+}
+</script>
+</head>
+<body class="min-h-screen pb-32">
+    <div id="app">
+        <header class="bg-primary text-white p-4 shadow-xl sticky top-0 z-50 transition-colors duration-400">
+            <div class="container mx-auto max-w-4xl flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md"><i data-lucide="leaf" class="w-5 h-5"></i></div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight leading-none" style="color: var(--header-text)">EcoRent</h1>
+                        <p class="text-[8px] opacity-70 uppercase tracking-[0.2em] font-bold" style="color: var(--header-text)">Sasha Kalko Management</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-1.5">
+                    <button onclick="window.navigate('dashboard')" class="btn-icon" title="Panel Principal">
+                        <i data-lucide="home" class="w-4 h-4"></i>
+                    </button>
+
+                    <button onclick="window.fillWithExampleData()" class="btn-icon" title="Rellenar con Ejemplo">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                    </button>
+
+                    <button onclick="window.autofillCurrentForm()" class="btn-icon" title="Autocompletar último cliente">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                    </button>
+
+                    <button onclick="window.toggleTheme()" class="btn-icon" title="Cambiar Tema">
+                        <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+                    </button>
+
+                    <button onclick="window.toggleSettings()" class="btn-icon" title="Configuración">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                    </button>
+
+                    <button onclick="window.contactIT()" class="btn-icon border border-green-500/20" title="Soporte IT (WhatsApp)">
+                        <i data-lucide="message-circle" class="w-4 h-4 text-green-400"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-4 max-w-4xl pt-8" id="view-container"></main>
+
+        <footer class="mt-20 p-8 text-center border-t border-gray-100 dark:border-gray-800 opacity-60">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-muted">
+                App diseñada por LA design 2026 all right reserved
+            </p>
+        </footer>
+
+        <nav class="fixed bottom-0 left-0 right-0 sticky-nav backdrop-blur-xl flex justify-around items-center h-20 px-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 rounded-t-[2.5rem]">
+            <button onclick="window.navigate('dashboard')" class="nav-tab active" id="nav-dashboard"><i data-lucide="home"></i><span>Panel</span></button>
+            <button onclick="window.navigate('catalog')" class="nav-tab" id="nav-catalog"><i data-lucide="package"></i><span>Catálogo</span></button>
+            <button onclick="window.navigate('history')" class="nav-tab" id="nav-history"><i data-lucide="list"></i><span>Lista</span></button>
+            <button onclick="window.navigate('export')" class="nav-tab" id="nav-export"><i data-lucide="database"></i><span>Export</span></button>
+        </nav>
+
+        <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[100] p-6">
+            <div class="card w-full max-w-md p-8">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="bg-primary/10 p-4 rounded-3xl text-primary"><i data-lucide="settings-2"></i></div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-main">Configuración</h2>
+                        <p class="text-xs text-muted">Vincular con Google Sheets</p>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-bold text-muted uppercase tracking-widest mb-1 ml-2">App Script URL</label>
+                        <input type="text" id="gas-url" placeholder="https://script.google.com/..." class="input-field">
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                        <button onclick="window.toggleSettings()" class="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl font-bold hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-all">Cancelar</button>
+                        <button onclick="window.saveSettings()" class="flex-1 bg-primary text-white px-6 py-4 rounded-2xl font-bold shadow-xl hover:opacity-90 transition-all">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="index.tsx"></script>
+</body>
+</html>
